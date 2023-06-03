@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: strategies-setup-pod
+  namespace: coingro
+spec:
+  containers:
+  - name: setup-container
+    command: ["sleep", "1000"]
+    # command: ["cp", "-r", "/coingro/strategies/*", "/coingro/strategies_mount/"]  # for some reason this command does not work so exec into container and run manually
+    image: us-central1-docker.pkg.dev/coingora/coingro-images/coingro:1.0.12
+    volumeMounts:
+    - mountPath: /coingro/strategies_mount
+      name: strategies
+  volumes:
+  - name: strategies
+    persistentVolumeClaim:
+      claimName: strategies-pvc-src
+  securityContext:
+    fsGroup: 1000
+    # runAsUser: 1000

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coingro-controller-master
+  namespace: coingro
+  labels:
+    app: coingro-controller
+    role: orchestrator
+    group: master
+spec:
+  containers:
+  - name: coingro-controller
+    image: us-central1-docker.pkg.dev/coingora/coingro-images/coingro-controller:1.0.4
+    imagePullPolicy: Always
+    env:
+    - name: CG_CONTROLLER_APP_ENV
+      value: kubernetes
+    - name: CG_CONTROLLER_GROUP
+      value: master
+    - name: CG_CONTROLLER_ID
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: COINGRO_CONTROLLER__INITIAL_STATE
+      value: running
+    - name: COINGRO_CONTROLLER__CG_IMAGE
+      value: us-central1-docker.pkg.dev/coingora/coingro-images/coingro:1.0.12
+    - name: COINGRO_CONTROLLER__NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 8080
+    volumeMounts:
+    - mountPath: /coingro/strategies
+      name: strategies
+      readOnly: true
+  volumes:
+  - name: strategies
+    persistentVolumeClaim:
+      claimName: strategies-pvc
